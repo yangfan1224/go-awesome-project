@@ -1,24 +1,34 @@
 package main
 
 import (
-		"net/http"
-	"github.com/gorilla/mux"
-	"log"
-	"github.com/yangfan1224/go-awesome-project/muxhandler"
-	)
+	"context"
+	"fmt"
+	"math/rand"
+	"sync"
+)
 
-func main(){
-	//channel.StartServer()
-	topicHanlder := muxhandler.NewTopicHandler()
-	r := mux.NewRouter()
-	// Routes consist of a path and a handler function.
-	r.HandleFunc("/topic", topicHanlder.HandleAdd).Methods("POST")
-	r.HandleFunc("/topic/{id}", topicHanlder.HandleGet).Methods("GET")
-	r.HandleFunc("/topic", topicHanlder.HandleGetAll).Methods("GET")
-	r.HandleFunc("/topic", topicHanlder.HandleModify).Methods("PUT")
-	r.HandleFunc("/topic/{id}", topicHanlder.HandleDelete).Methods("DELETE")
+type Person struct {
+	Name string
+	Age int
+}
 
-	// Bind to a port and pass our router in
+func worker(ctx context.Context, wg *sync.WaitGroup) error {
+	defer wg.Done()
 
-	log.Fatal(http.ListenAndServe(":8000", r))
+	for {
+		select {
+		default:
+			fmt.Println("hello")
+		case <-ctx.Done():
+			fmt.Printf("Done err is: %v\n", ctx.Err())
+			return ctx.Err()
+		}
+	}
+}
+
+func main() {
+	//rand.Seed(time.Now().UTC().UnixNano())
+	for i := 0; i < 10; i ++ {
+		fmt.Println(rand.Int())
+	}
 }
