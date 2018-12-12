@@ -1,0 +1,14 @@
+module LacWordTag
+{
+
+struct TAG {
+    0  require  string name;
+    1  require  string type;
+};
+
+interface LacService
+{
+    int test();
+    int lacTag(string sentence, out vector<TAG> tags);
+};
+};
