@@ -94,8 +94,15 @@ func ScrapyChinaz(){
 		}
 	})
 
-	c.OnError(func(response *colly.Response, e error) {
-		fmt.Printf("url=%s, err=%s\n", response.Request.URL, e)
+	c.OnError(func(r *colly.Response, e error) {
+		fmt.Printf("err: %s, at request: %s Now Retrying\n", e, r.Request.URL.String() )
+		var url string
+		if url = r.Request.URL.String(); strings.HasPrefix(url,"https://"){
+			url  = strings.Replace(url,"https","http",1)
+		}else{
+			url  = strings.Replace(url,"http","https",1)
+		}
+		r.Request.Visit(url)
 	})
 
 	var iconDownload = make (map[string]string)
@@ -109,6 +116,18 @@ func ScrapyChinaz(){
 		fmt.Println(iconUrl)
 		iconDownload[url] = iconUrl
 	})
+
+	c2.OnError(func(r *colly.Response, e error) {
+		fmt.Printf("err: %s, at request: %s Now Retrying\n", e, r.Request.URL.String() )
+		var url string
+		if url = r.Request.URL.String(); strings.HasPrefix(url,"https://"){
+			url  = strings.Replace(url,"https","http",1)
+		}else{
+			url  = strings.Replace(url,"http","https",1)
+		}
+		r.Request.Visit(url)
+	})
+
 	c.Visit("http://top.chinaz.com/all/index.html")
 
 	for i := range UrlDocList{

@@ -2,8 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/base64"
+	"errors"
 	"fmt"
-	"github.com/gocolly/colly"
+	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -50,31 +55,30 @@ type PubgCompetition struct {
 	matchid string `json:"id"`
 	playat string `json:"playedAt"`
 }
+var cookies []*http.Cookie
+
+// AESCFBdecrypt AES CFB 解密
+func AESCFBdecrypt1(key, text []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	if len(text) < aes.BlockSize {
+		return nil, errors.New("ciphertext too short")
+	}
+	iv := text[:aes.BlockSize]
+	text = text[aes.BlockSize:]
+	cfb := cipher.NewCFBDecrypter(block, iv)
+	cfb.XORKeyStream(text, text)
+	data, err := base64.StdEncoding.DecodeString(string(text))
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
 
 func main() {
-	//colly.Debugger(&debug.LogDebugger{})
-	c := colly.NewCollector()
+	s := strconv.Itoa(0xA0)
+	fmt.Printf("%T, %v\n", s, s)
 
-	// Find and visit all links
-	c.OnHTML("title", func(e *colly.HTMLElement) {
-		fmt.Printf("title=%s\n",e.Text)
-	})
-
-	c.OnHTML("meta[name=description]", func(e *colly.HTMLElement) {
-		fmt.Printf("content=%s\n",e.Attr("content"))
-	})
-
-	c.OnHTML("meta[name=keywords]", func(e *colly.HTMLElement) {
-		fmt.Printf("keywords=%s\n",e.Attr("content"))
-	})
-
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
-	})
-
-	c.OnResponse(func(response *colly.Response) {
-		fmt.Println("OnResponse is called.")
-	})
-
-	c.Visit("http://news.cctv.com/2018/12/15/ARTIzQ2H84mAvbUbI7weq0UH181215.shtml")
 }
