@@ -15,5 +15,6 @@ func Split(s, sep string) []string {
 	if len(s) > 0 {
 		result = append(result, s)
 	}
+
 	return result
 }
