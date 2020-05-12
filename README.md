@@ -1,1 +1,1 @@
-# go-awesome-project
+# go-example-project
